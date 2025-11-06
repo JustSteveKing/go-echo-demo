@@ -1,9 +1,9 @@
 # Go Echo Demo
 
-[![CI](https://github.com/JustSteveKing/go-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/JustSteveKing/go-demo/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/JustSteveKing/go-demo)](https://goreportcard.com/report/github.com/JustSteveKing/go-demo)
-[![codecov](https://codecov.io/gh/JustSteveKing/go-demo/branch/main/graph/badge.svg)](https://codecov.io/gh/JustSteveKing/go-demo)
-[![Release](https://img.shields.io/github/v/release/JustSteveKing/go-demo)](https://github.com/JustSteveKing/go-demo/releases)
+[![CI](https://github.com/JustSteveKing/go-echo-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/JustSteveKing/go-echo-demo/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/JustSteveKing/go-echo-demo)](https://goreportcard.com/report/github.com/JustSteveKing/go-echo-demo)
+[![codecov](https://codecov.io/gh/JustSteveKing/go-echo-demo/branch/main/graph/badge.svg)](https://codecov.io/gh/JustSteveKing/go-echo-demo)
+[![Release](https://img.shields.io/github/v/release/JustSteveKing/go-echo-demo)](https://github.com/JustSteveKing/go-echo-demo/releases)
 
 A simple HTTP server built with Go using the Echo framework (labstack/echo) to demonstrate clean routing, built-in middleware, and graceful shutdown.
 
@@ -27,9 +27,9 @@ A simple HTTP server built with Go using the Echo framework (labstack/echo) to d
 
 ```bash
 git clone <repository-url>
-cd go-demo
+cd go-echo-demo
 go mod download
-# Install Echo
+# Install Echo (already in go.mod; safe to run)
 go get github.com/labstack/echo/v4
 go get github.com/labstack/echo/v4/middleware
 ```
@@ -98,7 +98,7 @@ curl http://localhost:8080/version
 
 Response:
 ```json
-{"version":"dev","commit":"","built":""}
+{"Version":"dev","Commit":"","Built":""}
 ```
 
 ## Development with Echo

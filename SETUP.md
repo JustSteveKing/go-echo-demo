@@ -11,10 +11,10 @@ This guide walks you through creating this Go HTTP server using the Echo framewo
 5. [Building the HTTP Server (Echo)](#building-the-http-server-echo)
 6. [Adding Middleware (Echo)](#adding-middleware-echo)
 7. [Implementing Handlers (Echo)](#implementing-handlers-echo)
-7. [Type Definitions](#type-definitions)
-8. [Build Automation with Make](#build-automation-with-make)
-9. [CI/CD Setup](#cicd-setup)
-10. [Testing the Application](#testing-the-application)
+8. [Type Definitions](#type-definitions)
+9. [Build Automation with Make](#build-automation-with-make)
+10. [CI/CD Setup](#cicd-setup)
+11. [Testing the Application](#testing-the-application)
 
 ---
 
@@ -55,20 +55,20 @@ These will be installed via `make install-tools`:
 ### Step 1: Create Project Directory
 
 ```bash
-mkdir go-demo
-cd go-demo
+mkdir go-echo-demo
+cd go-echo-demo
 ```
 
 ### Step 2: Initialize Go Module
 
 ```bash
-go mod init github.com/yourusername/go-demo
+go mod init github.com/yourusername/go-echo-demo
 ```
 
 This creates a `go.mod` file:
 
 ```go
-module github.com/yourusername/go-demo
+module github.com/yourusername/go-echo-demo
 
 go 1.23.4
 ```
@@ -82,7 +82,7 @@ go 1.23.4
 The project follows a simple, flat structure suitable for small-to-medium applications:
 
 ```
-go-demo/
+go-echo-demo/
 ├── main.go           # Server setup, configuration, and lifecycle
 ├── handlers.go       # HTTP request handlers
 ├── middleware.go     # HTTP middleware functions
@@ -124,47 +124,32 @@ Start with type definitions and build metadata:
 ```go
 package main
 
-import "net/http"
-
 // Build info set via -ldflags at build time (optional).
 var (
-	buildVersion = "dev"
-	buildCommit  = ""
-	buildTime    = ""
+  buildVersion = "dev"
+  buildCommit  = ""
+  buildTime    = ""
 )
 
 // Info holds build metadata for the binary.
 type Info struct {
-	Version string
-	Commit  string
-	Built   string
+  Version string
+  Commit  string
+  Built   string
 }
 
 // BuildInfo returns the build metadata.
 func BuildInfo() Info {
-	return Info{
-		Version: buildVersion,
-		Commit:  buildCommit,
-		Built:   buildTime,
-	}
-}
-
-// responseWriter wraps http.ResponseWriter to record the status code.
-type responseWriter struct {
-	http.ResponseWriter
-	status int
-}
-
-// WriteHeader records the status code and writes the header.
-func (w *responseWriter) WriteHeader(statusCode int) {
-	w.status = statusCode
-	w.ResponseWriter.WriteHeader(statusCode)
+  return Info{
+    Version: buildVersion,
+    Commit:  buildCommit,
+    Built:   buildTime,
+  }
 }
 ```
 
 **Key Concepts:**
 - **Build variables**: Injected at compile time for version tracking
-- **responseWriter**: Custom wrapper to capture HTTP status codes for logging
 - **Public functions**: `BuildInfo()` provides structured access to build metadata
 
 ### Step 4: Create `main.go`
@@ -382,7 +367,7 @@ A comprehensive Makefile for all development tasks:
 .PHONY: help build test lint security coverage clean run install-tools all check
 
 # Variables
-BINARY_NAME=go-demo
+BINARY_NAME=go-echo-demo
 VERSION?=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 COMMIT?=$(shell git rev-parse HEAD 2>/dev/null || echo "unknown")
 BUILD_TIME?=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -681,8 +666,8 @@ before:
     - go mod verify
 
 builds:
-  - id: go-demo
-    binary: go-demo
+  - id: go-echo-demo
+    binary: go-echo-demo
     env:
       - CGO_ENABLED=0
     goos:
@@ -700,7 +685,7 @@ builds:
     mod_timestamp: '{{ .CommitTimestamp }}'
 
 archives:
-  - id: go-demo
+  - id: go-echo-demo
     format: tar.gz
     name_template: >-
       {{ .ProjectName }}_
@@ -746,7 +731,7 @@ changelog:
 release:
   github:
     owner: yourusername
-    name: go-demo
+  name: go-echo-demo
   draft: false
   prerelease: auto
   name_template: "{{.ProjectName}} v{{.Version}}"
@@ -799,7 +784,7 @@ Open a new terminal and test:
 ```bash
 # Test hello endpoint
 curl http://localhost:8080/
-# Expected: Hello from Sevalla
+# Expected: Hello from Echo
 
 # Test health endpoint
 curl http://localhost:8080/health
@@ -807,7 +792,7 @@ curl http://localhost:8080/health
 
 # Test version endpoint
 curl http://localhost:8080/version
-# Expected: {"version":"dev","commit":"","built":""}
+# Expected: {"Version":"dev","Commit":"","Built":""}
 ```
 
 ### Step 12: Test Graceful Shutdown
@@ -848,7 +833,7 @@ make build
 GOOS=linux GOARCH=amd64 make build
 
 # Test the binary
-./go-demo
+./go-echo-demo
 ```
 
 ### Container Deployment (Optional)
@@ -861,20 +846,20 @@ WORKDIR /app
 COPY go.* ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o go-demo .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o go-echo-demo .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=builder /app/go-demo .
+COPY --from=builder /app/go-echo-demo .
 EXPOSE 8080
-CMD ["./go-demo"]
+CMD ["./go-echo-demo"]
 ```
 
 Build and run:
 ```bash
-docker build -t go-demo .
-docker run -p 8080:8080 go-demo
+docker build -t go-echo-demo .
+docker run -p 8080:8080 go-echo-demo
 ```
 
 ### Kubernetes Deployment (Optional)
@@ -885,20 +870,20 @@ Create `deployment.yaml`:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: go-demo
+  name: go-echo-demo
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: go-demo
+  app: go-echo-demo
   template:
     metadata:
       labels:
-        app: go-demo
+  app: go-echo-demo
     spec:
       containers:
-      - name: go-demo
-        image: go-demo:latest
+      - name: go-echo-demo
+        image: go-echo-demo:latest
         ports:
         - containerPort: 8080
         livenessProbe:
@@ -961,31 +946,45 @@ logger.Info("server started", "port", serverPort)
 
 ### Add Request Validation
 
+With Echo, validate incoming requests in handlers or via middleware:
+
 ```go
-func validateRequest(r *http.Request) error {
-    if r.Method != http.MethodPost {
-        return fmt.Errorf("method not allowed")
-    }
-    // More validation...
-    return nil
+type CreateInput struct {
+  Name string `json:"name"`
+}
+
+func create(c echo.Context) error {
+  in := new(CreateInput)
+  if err := c.Bind(in); err != nil {
+    return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid payload"})
+  }
+  if in.Name == "" {
+    return c.JSON(http.StatusBadRequest, map[string]string{"error": "name is required"})
+  }
+  return c.NoContent(http.StatusCreated)
 }
 ```
 
 ### Add Rate Limiting
 
-```go
-import "golang.org/x/time/rate"
+Echo-style rate limiter using golang.org/x/time/rate:
 
-func rateLimitMiddleware(limiter *rate.Limiter) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            if !limiter.Allow() {
-                http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
-                return
-            }
-            next.ServeHTTP(w, r)
-        })
+```go
+import (
+  "net/http"
+  "github.com/labstack/echo/v4"
+  "golang.org/x/time/rate"
+)
+
+func rateLimitMiddleware(limiter *rate.Limiter) echo.MiddlewareFunc {
+  return func(next echo.HandlerFunc) echo.HandlerFunc {
+    return func(c echo.Context) error {
+      if !limiter.Allow() {
+        return c.String(http.StatusTooManyRequests, "Too Many Requests")
+      }
+      return next(c)
     }
+  }
 }
 ```
 

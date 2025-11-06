@@ -1,4 +1,4 @@
-module github.com/juststeveking/go-demo
+module github.com/juststeveking/go-echo-demo
 
 go 1.23.4
 
